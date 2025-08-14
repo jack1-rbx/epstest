@@ -1,11 +1,10 @@
-// server.js
 import express from 'express';
 import fetch from 'node-fetch';
 import cors from 'cors';
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // Allow frontend requests
+app.use(cors()); 
 
 const SIMS_API_BASE = 'https://apiv2.simsroblox.com/api/v1/studentview';
 const SIMS_API_KEY = '22c75aa9-99db-40a2-8745-18a74f9b559b';
@@ -15,7 +14,6 @@ app.post('/getStudentData', async (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: 'Missing username' });
 
-    // Get Roblox UserId
     const robloxRes = await fetch('https://users.roblox.com/v1/usernames/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -31,7 +29,6 @@ app.post('/getStudentData', async (req, res) => {
 
     const studentId = robloxData.data[0].id;
 
-    // Fetch Sims data
     const simsRes = await fetch(SIMS_API_BASE, {
       method: 'POST',
       headers: {
