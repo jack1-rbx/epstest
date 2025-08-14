@@ -108,7 +108,7 @@
       document.getElementById('results').innerHTML = '<p>Fetching Student Data...</p>';
 
       try {
-        const res = await fetch('http://localhost:3000/getStudentData', {
+        const res = await fetch('https://epstest-mu.vercel.app/server.js', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username })
@@ -154,3 +154,4 @@
   </script>
 </body>
 </html>
+
