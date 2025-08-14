@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sims Roblox Student Data</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0554a2;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .form-box {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+    }
+    input {
+      width: 100%;
+      padding: 12px 50px 12px 20px;
+      font-size: 16px;
+      border-radius: 50px;
+      border: none;
+      outline: none;
+    }
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      fill: white;
+    }
+    .search-icon:hover {
+      fill: #ccc;
+    }
+.result-container {
+  background: rgba(255, 255, 255, 0.9); /* semi-transparent white */
+  color: black;
+  border-radius: 25px; /* fully rounded */
+  padding: 25px;
+  margin: 30px auto; /* auto left/right centers the box */
+  max-width: 800px; /* max width */
+  width: 90%; /* responsive width */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+    .student-header {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 12px;
+      border-radius: 15px; /* rounded bottom */
+    }
+    .points-box {
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .positive {
+      border: 2px solid green;
+    }
+    .negative {
+      border: 2px solid red;
+    }
+    .points-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Get Student Data</h1>
+  <div class="form-box">
+    <input type="text" id="studentUsername" placeholder="Student Username">
+    <svg class="search-icon" viewBox="0 0 24 24" onclick="getStudentData()">
+      <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.27 5.59 12.68 3 9.5 3S3.73 5.59 3.73 8.73c0 3.14 2.59 5.73 5.77 5.73a6.471 6.471 0 005.34-1.48l.27.28v.79l4.25 4.25 1.5-1.5L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+    </svg>
+  </div>
+  <div id="results"></div>
+
+  <script>
+    document.getElementById('studentUsername').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') getStudentData();
+    });
+
+    async function getStudentData() {
+      const username = document.getElementById('studentUsername').value.trim();
+      if (!username) return alert('Please enter the Student Username');
+
+      document.getElementById('results').innerHTML = '<p>Fetching Student Data...</p>';
+
+      try {
+        const res = await fetch('http://localhost:3000/getStudentData', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || 'Server error');
+        }
+
+        const data = await res.json();
+
+        // Extract relevant info
+        const roleplayName = data.Data?.RoleplayName || "N/A";
+        const simsID = data.StudentID || "N/A";
+        const positivePoints = data.Data?.PositiveLog?.reduce((sum, p) => sum + (p.Points || 0), 0) || 0;
+        const negativePoints = data.Data?.NegativeLog?.reduce((sum, n) => sum + (n.Points || 0), 0) || 0;
+
+        // Build HTML
+        const resultHTML = `
+          <div class="result-container">
+            <div class="student-header">
+              Students Roleplay Name: ${roleplayName}<br>
+              Students SIMS ID: ${simsID}
+            </div>
+            <div class="points-box positive">
+              <div class="points-title">Students Positive Points</div>
+              ${positivePoints}
+            </div>
+            <div class="points-box negative">
+              <div class="points-title">Students Negative Points</div>
+              ${negativePoints}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('results').innerHTML = resultHTML;
+
+      } catch (err) {
+        document.getElementById('results').innerHTML = `<p style="color:red;">${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
